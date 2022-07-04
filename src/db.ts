@@ -1,20 +1,21 @@
-const users = [
+interface User {
+    email: String
+    password: String
+}
+const users: User[] = [
     {
-        name: "Suman Biswas",
-        email: "hellosumanbiswas@gmail.com",
-        password: "DBJH&%&ASDK$$332"
+        "email": "suman@gmail.com",
+        "password": "$2b$05$IoT9eamKn9wB1FP/XtZr4uKwL2V8ZvPjm57CRqHkJYOjKSEn9AhK6"
     },
     {
-        name: "Mohamed Karim",
-        email: "mohamed@gmail.com",
-        password: "XBSA$SADBJDSAJFG"
+        "email": "mohamed@gmail.com",
+        "password": "$4f$05$ZdaTyHh0X1My777NklucbehqqHlmXvWNF7tKR8zk7x4jj7JjfQlG4"
     },
     {
-        name: "Rahul Biswas",
-        email: "rahul@gmail.com",
-        password: "DSAD&%&ASDK$$332"
+        "email": "rahul@gmail.com",
+        "password": "$8b$05$ZdaTyHh0X1My777NklucbehqqHlmXvWNF7tKR8zk7x4jj7JjfQlTm"
     }
 ]
 
-
+export { User }
 module.exports = { users }
