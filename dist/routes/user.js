@@ -17,8 +17,9 @@ const bcrypt_1 = __importDefault(require("bcrypt"));
 const JWT = require("jsonwebtoken");
 const { users } = require("../db");
 const { validateEmail, validatePassword } = require("../helpers/validator");
+const checkAuth = require("../helpers/checkAuth");
 const router = (0, express_1.Router)();
-router.get("/", (req, res) => {
+router.get("/", checkAuth, (req, res) => {
     res.status(200).send(users);
 });
 // SIGN-UP

@@ -4,10 +4,11 @@ import bcrypt from "bcrypt"
 const JWT = require("jsonwebtoken")
 const { users } = require("../db")
 const { validateEmail, validatePassword } = require("../helpers/validator")
+const checkAuth = require("../helpers/checkAuth")
 const router = Router()
 
 
-router.get("/", (req: Request, res: Response) => {
+router.get("/", checkAuth, (req: Request, res: Response) => {
     res.status(200).send(users)
 })
 
@@ -56,6 +57,8 @@ router.post("/login", async (req: Request, res: Response) => {
         return res.status(400).send({ error: "can't login", message: "can't perform login" })
     }
 })
+
+
 
 
 module.exports = router
