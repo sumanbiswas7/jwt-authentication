@@ -1,14 +1,17 @@
 import { Router, Request, Response } from "express";
 import { User } from "../db"
+import bcrypt from "bcrypt"
+const JWT = require("jsonwebtoken")
 const { users } = require("../db")
 const { validateEmail, validatePassword } = require("../helpers/validator")
-import bcrypt from "bcrypt"
 const router = Router()
 
 
 router.get("/", (req: Request, res: Response) => {
     res.status(200).send(users)
 })
+
+// SIGN-UP
 router.post("/signup", async (req: Request, res: Response) => {
     const { email, password } = req.body
 
@@ -25,12 +28,34 @@ router.post("/signup", async (req: Request, res: Response) => {
         console.log(hashedPassword)
         const user = { email, password: hashedPassword }
         users.push(user)
-        res.status(201).send("user added sucessfully")
+        const token = await JWT.sign({ email }, "SECRET")
+        res.status(201).send({ message: "user added sucessfully", token })
 
     } catch (error) {
         console.log(error)
         res.status(400).send({ error: "db err", message: "can't connect to the database" })
     }
 })
+
+// LOG-IN
+router.post("/login", async (req: Request, res: Response) => {
+    const { email, password } = req.body;
+
+    const user = users.find((user: User) => user.email == email)
+    if (!user) return res.status(400).send({ error: "invalid user", message: `user ${email} not found` })
+
+    try {
+        const matchPassword = await bcrypt.compare(password, user.password)
+        if (!matchPassword) return res.status(400).send({ error: "invalid user", message: `invalid user credentials` })
+
+        const token = JWT.sign({ email }, "SECRET")
+        return res.status(200).send({ message: "login sucessfull", token })
+
+    } catch (error) {
+        console.log(error)
+        return res.status(400).send({ error: "can't login", message: "can't perform login" })
+    }
+})
+
 
 module.exports = router

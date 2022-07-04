@@ -13,13 +13,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
+const bcrypt_1 = __importDefault(require("bcrypt"));
+const JWT = require("jsonwebtoken");
 const { users } = require("../db");
 const { validateEmail, validatePassword } = require("../helpers/validator");
-const bcrypt_1 = __importDefault(require("bcrypt"));
 const router = (0, express_1.Router)();
 router.get("/", (req, res) => {
     res.status(200).send(users);
 });
+// SIGN-UP
 router.post("/signup", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { email, password } = req.body;
     const emailErr = validateEmail(email);
@@ -36,11 +38,30 @@ router.post("/signup", (req, res) => __awaiter(void 0, void 0, void 0, function*
         console.log(hashedPassword);
         const user = { email, password: hashedPassword };
         users.push(user);
-        res.status(201).send("user added sucessfully");
+        const token = yield JWT.sign({ email }, "SECRET");
+        res.status(201).send({ message: "user added sucessfully", token });
     }
     catch (error) {
         console.log(error);
         res.status(400).send({ error: "db err", message: "can't connect to the database" });
+    }
+}));
+// LOG-IN
+router.post("/login", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { email, password } = req.body;
+    const user = users.find((user) => user.email == email);
+    if (!user)
+        return res.status(400).send({ error: "invalid user", message: `user ${email} not found` });
+    try {
+        const matchPassword = yield bcrypt_1.default.compare(password, user.password);
+        if (!matchPassword)
+            return res.status(400).send({ error: "invalid user", message: `invalid user credentials` });
+        const token = JWT.sign({ email }, "SECRET");
+        return res.status(200).send({ message: "login sucessfull", token });
+    }
+    catch (error) {
+        console.log(error);
+        return res.status(400).send({ error: "can't login", message: "can't perform login" });
     }
 }));
 module.exports = router;
